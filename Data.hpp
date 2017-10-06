@@ -5,6 +5,7 @@
 
 struct Data {
 public:
+	bool quit = false;
 	int playerPosX = 9;
 	int playerPosY = 0;
 	bool walls[10][5]{};

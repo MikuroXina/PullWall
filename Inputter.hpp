@@ -3,7 +3,8 @@
 class Inputter {
 private:
 	SDL_Event event;
-	class MainController *controller;
 public:
+	class MainController *controller;
+	
 	void update();
-}
+};

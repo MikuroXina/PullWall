@@ -20,6 +20,7 @@ public:
 	void moveUp();
 
 	// Other events
+	void quit();
 	void clear();
 	void updateDisplay();
 };

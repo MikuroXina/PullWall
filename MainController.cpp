@@ -2,6 +2,7 @@
 
 #include "MainController.hpp"
 #include "Data.hpp"
+#include "Inputter.hpp"
 
 void MainController::checkSDLError() {
 	const char *error = SDL_GetError();
@@ -29,9 +30,9 @@ MainController::MainController() {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-	constexpr Uint32 width = 500;
+	constexpr Uint32 width = 1000;
 	constexpr Uint32 height = 500;
-	data->window = SDL_CreateWindow("Case Bye Case", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	data->window = SDL_CreateWindow("Pull Wall", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if (!(data->window)) {
 		std::cout<<"Unable to create a window!"<<std::endl;
 	}
@@ -50,7 +51,32 @@ MainController::~MainController() {
 }
 
 int MainController::run() {
-
+	Inputter inputter{};
+	inputter.controller = this;
+	while (!(data->quit)) {
+		inputter.update();
+	}
 
 	return 0;
+}
+
+void MainController::quit() {
+	std::cout<<"Quitting..."<<std::endl;
+	data->quit = true;
+}
+
+void MainController::moveLeft() {
+	;
+}
+
+void MainController::moveDown() {
+	;
+}
+
+void MainController::moveRight() {
+	;
+}
+
+void MainController::moveUp() {
+	;
 }
