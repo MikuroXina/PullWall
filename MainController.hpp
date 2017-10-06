@@ -1,3 +1,4 @@
+#include <string>
 
 struct Data;
 
@@ -6,7 +7,6 @@ private:
 	Data *data;
 
 	void checkSDLError();
-	void renderText(char const*, double, double, double, double);
 public:
 	MainController();
 	~MainController();
@@ -18,6 +18,10 @@ public:
 	void moveDown();
 	void moveRight();
 	void moveUp();
+
+	// Grab events
+	void grabWall();
+	void releaseWall();
 
 	// Other events
 	void quit();

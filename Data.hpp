@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <SDL_ttf.h>
 
 struct Data {
 public:
@@ -12,8 +13,11 @@ public:
 	GLuint wallTexID=0;
 	GLuint playerTexID=1;
 
+	unsigned int elapsedSteps = 0;
+	unsigned int wallMovedTimes = 0;
+
 	SDL_Window *window{};
 	SDL_GLContext context = NULL;
 
-	FT_Face face;
+	TTF_Font *font;
 };

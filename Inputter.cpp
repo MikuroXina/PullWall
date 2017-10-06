@@ -12,10 +12,10 @@ void Inputter::update() {
 					controller->quit();
 					break;
 				case SDLK_v:
-					//TODO
+					controller->grabWall();
 						break;
 				case SDLK_b:
-					//TODO
+					controller->releaseWall();
 					break;
 				case SDLK_DOWN:
 					controller->moveDown();
