@@ -1,7 +1,9 @@
 #include <iostream>
+#include <random>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <SDL_ttf.h>
+#include <SDL_image.h>
 
 #include "MainController.hpp"
 #include "Data.hpp"
@@ -23,6 +25,7 @@ MainController::MainController() {
 	}
 
 	TTF_Init();
+	IMG_Init(IMG_INIT_PNG);
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -59,9 +62,28 @@ MainController::MainController() {
 		std::cout << "Unable to open the font: " << TTF_GetError() << std::endl;
 		throw -1;
 	}
+
+	data->renderer = SDL_CreateRenderer(data->window, -1, SDL_RENDERER_ACCELERATED);
+
+	data->wallTex = IMG_Load("WallH.png");
+	data->playerTex = IMG_Load("Player.png");
+
+	// Init randomize
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_int_distribution<int> dice(0, 1);
+	for (auto &column : data->walls) {
+		for (auto &line : column) {
+			line = (dice(mt) == 0 ? true : false);
+		}
+	}
 }
 
 MainController::~MainController() {
+	SDL_FreeSurface(data->wallTex);
+	SDL_FreeSurface(data->playerTex);
+	SDL_DestroyRenderer(data->renderer);
+
 	SDL_GL_DeleteContext(data->context);
 	SDL_DestroyWindow(data->window);
 
@@ -91,7 +113,10 @@ void MainController::quit() {
 }
 
 void MainController::clear() {
+	// Render sprite
 
+	SDL_Delay(3000);
+	quit();
 }
 
 void MainController::updateDisplay() {
@@ -100,16 +125,70 @@ void MainController::updateDisplay() {
 
 	std::cout << "Rendering score..." << std::endl;
 
-	SDL_Renderer *renderer = SDL_CreateRenderer(data->window, -1, SDL_RENDERER_ACCELERATED);
+	SDL_SetRenderDrawColor(data->renderer, 0, 0, 0, 255);
+	SDL_RenderClear(data->renderer);
 
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderClear(renderer);
+	// Draw walls
+	{
+		SDL_Rect wallRect;
+
+		SDL_Texture *wallTexBuf = SDL_CreateTextureFromSurface(data->renderer, data->wallTex);
+		for (int i=0; i<10; i+=1) {
+			if (i%2 == 0) {
+				for (int j=0; j<9; j+=1) { // Vertical walls
+					if (data->walls[i][j]) {
+						wallRect.x = j * 100 + 50;
+						wallRect.y = i * 50 + 40;
+						wallRect.w = 80;
+						wallRect.h = 10;
+						SDL_RenderCopyEx(data->renderer, wallTexBuf, NULL, &wallRect, 90, NULL, SDL_FLIP_NONE);
+					}
+				}
+			} else {
+				for (int j=0; j<10; j+=1) { // Horizontal walls
+					if (data->walls[i][j]) {
+						wallRect.x = j * 100;
+						wallRect.y = i * 50 + 40;
+						wallRect.w = 80;
+						wallRect.h = 10;
+						SDL_RenderCopy(data->renderer, wallTexBuf, NULL, &wallRect);
+					}
+				}
+			}
+		}
+		SDL_DestroyTexture(wallTexBuf);
+	}
+
+	// Draw player
+	{
+		SDL_Rect playerRect;
+		playerRect.x = data->playerPosX * 100 + 10;
+		playerRect.y = data->playerPosY * 100 + 10;
+		playerRect.w = 90;
+		playerRect.h = 90;
+
+		SDL_Texture *playerTexBuf = SDL_CreateTextureFromSurface(data->renderer, data->playerTex);
+		switch (data->playerDir) {
+		case Direction::Up:
+			SDL_RenderCopyEx(data->renderer, playerTexBuf, NULL, &playerRect, 0, NULL, SDL_FLIP_NONE);
+			break;
+		case Direction::Right:
+
+			break;
+		case Direction::Down:
+
+			break;
+		case Direction::Left:
+
+			break;
+		}
+	}
 
 	// Draw socre
 	SDL_Color white = {0xff, 0xff, 0xff};
 	char const *text = ("Step: " + std::to_string(data->elapsedSteps) + " , Moved: " + std::to_string(data->wallMovedTimes)).c_str();
 	SDL_Surface *stepImage = TTF_RenderText_Solid(data->font, text, white);
-	SDL_Texture *stepTex = SDL_CreateTextureFromSurface(renderer, stepImage);
+	SDL_Texture *stepTex = SDL_CreateTextureFromSurface(data->renderer, stepImage);
 
 	SDL_Rect stepViewRect;
 	stepViewRect.x = 0;
@@ -119,18 +198,12 @@ void MainController::updateDisplay() {
 
 	TTF_SizeText(data->font, text, &(stepViewRect.w), &(stepViewRect.h));
 
-	SDL_RenderCopy(renderer, stepTex, NULL, &stepViewRect);
-
-	SDL_GL_SwapWindow(data->window);
+	SDL_RenderCopy(data->renderer, stepTex, NULL, &stepViewRect);
 
 	SDL_DestroyTexture(stepTex);
 	SDL_FreeSurface(stepImage);
 
-	// Draw walls
-
-
-	// Draw player
-
+	SDL_GL_SwapWindow(data->window);
 
 	SDL_Delay(1);
 }
