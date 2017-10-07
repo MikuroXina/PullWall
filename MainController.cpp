@@ -75,7 +75,9 @@ MainController::MainController() {
 	for (auto &column : data->walls) {
 		for (auto &line : column) {
 			line = (dice(mt) == 0 ? true : false);
+			std::cout << line << ", ";
 		}
+		std::cout << std::endl;
 	}
 }
 
@@ -128,7 +130,7 @@ void MainController::updateDisplay() {
 		SDL_Rect wallRect;
 
 		SDL_Texture *wallTexBuf = SDL_CreateTextureFromSurface(data->renderer, data->wallTex);
-		for (int i=0; i<10; i+=1) {
+		for (int i=0; i<9; i+=1) {
 			if (i%2 == 0) {
 				for (int j=0; j<9; j+=1) { // Vertical walls
 					if (data->walls[i][j]) {
@@ -230,36 +232,56 @@ void MainController::updateDisplay() {
 }
 
 void MainController::moveLeft() {
-	if (!(data->isGrabWall) && !(data->isSneaking) && data->playerPosX > 0) {
-		data->playerPosX -= 1;
-		data->elapsedSteps += 1;
+	if (!(data->isSneaking) && data->playerPosX > 0) {
+		if (!(data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)])) {
+			data->playerPosX -= 1;
+			data->elapsedSteps += 1;
+		}
+	}
+	if (data->isGrabWall && data->playerDir != Direction::Left) {
+		data->wallMovedTimes += 1;
 	}
 	data->playerDir = Direction::Left;
 	updateDisplay();
 }
 
 void MainController::moveDown() {
-	if (!(data->isGrabWall) && !(data->isSneaking) && data->playerPosY < 4) {
-		data->playerPosY += 1;
-		data->elapsedSteps += 1;
+	if (!(data->isSneaking) && data->playerPosY < 4) {
+		if (!(data->walls[(data->playerPosY * 2 + 1)][data->playerPosX])) {
+			data->playerPosY += 1;
+			data->elapsedSteps += 1;
+		}
+	}
+	if (data->isGrabWall && data->playerDir != Direction::Down) {
+		data->wallMovedTimes += 1;
 	}
 	data->playerDir = Direction::Down;
 	updateDisplay();
 }
 
 void MainController::moveRight() {
-	if (!(data->isGrabWall) && !(data->isSneaking) && data->playerPosX < 9) {
-		data->playerPosX += 1;
-		data->elapsedSteps += 1;
+	if (!(data->isSneaking) && data->playerPosX < 9) {
+		if (!(data->walls[(data->playerPosY * 2)][data->playerPosX])) {
+			data->playerPosX += 1;
+			data->elapsedSteps += 1;
+		}
+	}
+	if (data->isGrabWall && data->playerDir != Direction::Right) {
+		data->wallMovedTimes += 1;
 	}
 	data->playerDir = Direction::Right;
 	updateDisplay();
 }
 
 void MainController::moveUp() {
-	if (!(data->isGrabWall) && !(data->isSneaking) && data->playerPosY > 0) {
-		data->playerPosY -= 1;
-		data->elapsedSteps += 1;
+	if (!(data->isSneaking) && data->playerPosY > 0) {
+		if (!(data->walls[(data->playerPosY * 2 - 1)][data->playerPosX])) {
+			data->playerPosY -= 1;
+			data->elapsedSteps += 1;
+		}
+	}
+	if (data->isGrabWall && data->playerDir != Direction::Up) {
+		data->wallMovedTimes += 1;
 	}
 	data->playerDir = Direction::Up;
 	updateDisplay();
