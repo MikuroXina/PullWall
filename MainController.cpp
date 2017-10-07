@@ -120,11 +120,6 @@ void MainController::clear() {
 }
 
 void MainController::updateDisplay() {
-	glClearColor(0.0, 0.0, 1.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	std::cout << "Rendering score..." << std::endl;
-
 	SDL_SetRenderDrawColor(data->renderer, 0, 0, 0, 255);
 	SDL_RenderClear(data->renderer);
 
@@ -161,11 +156,35 @@ void MainController::updateDisplay() {
 
 	// Draw player
 	{
+		if (data->isSneaking) {
+			SDL_SetRenderDrawColor(data->renderer, 192, 0, 0, 255);
+			SDL_Point points[] = {
+				{data->playerPosX * 100 + 10, data->playerPosY * 100 + 10},
+				{data->playerPosX * 100 + 80, data->playerPosY * 100 + 10},
+				{data->playerPosX * 100 + 80, data->playerPosY * 100 + 80},
+				{data->playerPosX * 100 + 10, data->playerPosY * 100 + 80},
+				{data->playerPosX * 100 + 10, data->playerPosY * 100 + 10}
+			};
+			SDL_RenderDrawLines(data->renderer, points, 5);
+		}
+
+		if (data->isGrabWall) {
+			SDL_SetRenderDrawColor(data->renderer, 192, 255, 0, 255);
+			SDL_Point points[] = {
+				{data->playerPosX * 100 + 20, data->playerPosY * 100 + 20},
+				{data->playerPosX * 100 + 70, data->playerPosY * 100 + 20},
+				{data->playerPosX * 100 + 70, data->playerPosY * 100 + 70},
+				{data->playerPosX * 100 + 20, data->playerPosY * 100 + 70},
+				{data->playerPosX * 100 + 20, data->playerPosY * 100 + 20}
+			};
+			SDL_RenderDrawLines(data->renderer, points, 5);
+		}
+
 		SDL_Rect playerRect;
 		playerRect.x = data->playerPosX * 100 + 10;
 		playerRect.y = data->playerPosY * 100 + 10;
-		playerRect.w = 90;
-		playerRect.h = 90;
+		playerRect.w = 70;
+		playerRect.h = 70;
 
 		SDL_Texture *playerTexBuf = SDL_CreateTextureFromSurface(data->renderer, data->playerTex);
 		switch (data->playerDir) {
@@ -173,21 +192,23 @@ void MainController::updateDisplay() {
 			SDL_RenderCopyEx(data->renderer, playerTexBuf, NULL, &playerRect, 0, NULL, SDL_FLIP_NONE);
 			break;
 		case Direction::Right:
-
+			SDL_RenderCopyEx(data->renderer, playerTexBuf, NULL, &playerRect, 90, NULL, SDL_FLIP_NONE);
 			break;
 		case Direction::Down:
-
+			SDL_RenderCopyEx(data->renderer, playerTexBuf, NULL, &playerRect, 180, NULL, SDL_FLIP_NONE);
 			break;
 		case Direction::Left:
-
+			SDL_RenderCopyEx(data->renderer, playerTexBuf, NULL, &playerRect, 270, NULL, SDL_FLIP_NONE);
 			break;
 		}
+
+		SDL_DestroyTexture(playerTexBuf);
 	}
 
 	// Draw socre
-	SDL_Color white = {0xff, 0xff, 0xff};
+	SDL_Color green = {0x00, 0xff, 0x00};
 	char const *text = ("Step: " + std::to_string(data->elapsedSteps) + " , Moved: " + std::to_string(data->wallMovedTimes)).c_str();
-	SDL_Surface *stepImage = TTF_RenderText_Solid(data->font, text, white);
+	SDL_Surface *stepImage = TTF_RenderText_Solid(data->font, text, green);
 	SDL_Texture *stepTex = SDL_CreateTextureFromSurface(data->renderer, stepImage);
 
 	SDL_Rect stepViewRect;
@@ -209,25 +230,61 @@ void MainController::updateDisplay() {
 }
 
 void MainController::moveLeft() {
-	;
+	if (!(data->isGrabWall) && !(data->isSneaking) && data->playerPosX > 0) {
+		data->playerPosX -= 1;
+		data->elapsedSteps += 1;
+	}
+	data->playerDir = Direction::Left;
+	updateDisplay();
 }
 
 void MainController::moveDown() {
-	;
+	if (!(data->isGrabWall) && !(data->isSneaking) && data->playerPosY < 4) {
+		data->playerPosY += 1;
+		data->elapsedSteps += 1;
+	}
+	data->playerDir = Direction::Down;
+	updateDisplay();
 }
 
 void MainController::moveRight() {
-	;
+	if (!(data->isGrabWall) && !(data->isSneaking) && data->playerPosX < 9) {
+		data->playerPosX += 1;
+		data->elapsedSteps += 1;
+	}
+	data->playerDir = Direction::Right;
+	updateDisplay();
 }
 
 void MainController::moveUp() {
-	;
+	if (!(data->isGrabWall) && !(data->isSneaking) && data->playerPosY > 0) {
+		data->playerPosY -= 1;
+		data->elapsedSteps += 1;
+	}
+	data->playerDir = Direction::Up;
+	updateDisplay();
+}
+
+void MainController::moveLock() {
+	data->isSneaking = true;
+	updateDisplay();
+}
+
+void MainController::moveUnlock() {
+	data->isSneaking = false;
+	updateDisplay();
 }
 
 void MainController::grabWall() {
-	;
+	if (!(data->isGrabWall)) {
+		data->isGrabWall = true;
+		updateDisplay();
+	}
 }
 
 void MainController::releaseWall() {
-	;
+	if (data->isGrabWall) {
+		data->isGrabWall = false;
+		updateDisplay();
+	}
 }

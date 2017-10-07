@@ -18,6 +18,7 @@ public:
 	int playerPosY = 4;
 	bool walls[10][10]{};
 	bool isGrabWall = false;
+	bool isSneaking = false;
 	Direction playerDir = Direction::Up;
 	unsigned int elapsedSteps = 0;
 	unsigned int wallMovedTimes = 0;

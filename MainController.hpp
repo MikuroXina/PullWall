@@ -19,6 +19,9 @@ public:
 	void moveRight();
 	void moveUp();
 
+	void moveLock();
+	void moveUnlock();
+
 	// Grab events
 	void grabWall();
 	void releaseWall();
