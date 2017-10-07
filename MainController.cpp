@@ -57,6 +57,7 @@ MainController::MainController() {
 
 	glViewport(0, 0, width, height);
 
+	// Setup font
 	data->font = TTF_OpenFont("PixelMplus12-Regular.ttf", 24);
 	if (data->font == nullptr) {
 		std::cout << "Unable to open the font: " << TTF_GetError() << std::endl;
@@ -65,8 +66,15 @@ MainController::MainController() {
 
 	data->renderer = SDL_CreateRenderer(data->window, -1, SDL_RENDERER_ACCELERATED);
 
+	// Setup texture
 	data->wallTex = IMG_Load("WallH.png");
 	data->playerTex = IMG_Load("Player.png");
+
+	// Setup sounds
+	sound.registerSound("Step1.wav"); // Id:0
+	sound.registerSound("Step2.wav"); // Id:1
+	sound.registerSound("Clear.wav"); // Id:2
+	sound.registerSound("Grab.wav"); // Id:3
 }
 
 MainController::~MainController() {
@@ -126,24 +134,39 @@ void MainController::quit() {
 void MainController::clear() {
 	// Render sprite
 	SDL_Color yellow = {0xff, 0xff, 0x00};
-	char const *text = "CLEAR!";
-	SDL_Surface *spriteImage = TTF_RenderText_Solid(data->font, text, yellow);
-	SDL_Texture *spriteTex = SDL_CreateTextureFromSurface(data->renderer, spriteImage);
+	char const *text1 = "CLEAR!";
+	char const *text2 = ("SCORE : " + std::to_string(data->elapsedSteps * 30 - data->wallMovedTimes * 50)).c_str();
+	SDL_Surface *spriteImage1 = TTF_RenderText_Solid(data->font, text1, yellow);
+	SDL_Texture *spriteTex1 = SDL_CreateTextureFromSurface(data->renderer, spriteImage1);
+	SDL_Surface *spriteImage2 = TTF_RenderText_Solid(data->font, text2, yellow);
+	SDL_Texture *spriteTex2 = SDL_CreateTextureFromSurface(data->renderer, spriteImage2);
 
-	SDL_Rect spriteViewRect;
-	spriteViewRect.x = 500;
-	spriteViewRect.y = 250;
-	spriteViewRect.w = 5000;
-	spriteViewRect.h = 5000;
+	SDL_Rect spriteViewRect1;
+	spriteViewRect1.x = 400;
+	spriteViewRect1.y = 200;
+	spriteViewRect1.w = 5000;
+	spriteViewRect1.h = 5000;
 
-	TTF_SizeText(data->font, text, &(spriteViewRect.w), &(spriteViewRect.h));
+	SDL_Rect spriteViewRect2;
+	spriteViewRect2.x = 400;
+	spriteViewRect2.y = 250;
+	spriteViewRect2.w = 5000;
+	spriteViewRect2.h = 5000;
 
-	SDL_RenderCopy(data->renderer, spriteTex, NULL, &spriteViewRect);
+	TTF_SizeText(data->font, text1, &(spriteViewRect1.w), &(spriteViewRect1.h));
+	TTF_SizeText(data->font, text2, &(spriteViewRect2.w), &(spriteViewRect2.h));
 
-	SDL_DestroyTexture(spriteTex);
-	SDL_FreeSurface(spriteImage);
+	SDL_RenderCopy(data->renderer, spriteTex1, NULL, &spriteViewRect1);
+	SDL_RenderCopy(data->renderer, spriteTex2, NULL, &spriteViewRect2);
+
+	SDL_DestroyTexture(spriteTex1);
+	SDL_FreeSurface(spriteImage1);
+	SDL_DestroyTexture(spriteTex2);
+	SDL_FreeSurface(spriteImage2);
 
 	SDL_GL_SwapWindow(data->window);
+
+	sound.playSound(2);
 
 	SDL_Delay(3000);
 	data->clear = true;
@@ -269,6 +292,9 @@ void MainController::moveLeft() {
 		if (!(data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)])) {
 			data->playerPosX -= 1;
 			data->elapsedSteps += 1;
+			sound.playSound(0);
+		} else {
+			sound.playSound(1);
 		}
 	}
 	if (data->isGrabWall && data->playerDir != Direction::Left) {
@@ -283,6 +309,9 @@ void MainController::moveDown() {
 		if (!(data->walls[(data->playerPosY * 2 + 1)][data->playerPosX])) {
 			data->playerPosY += 1;
 			data->elapsedSteps += 1;
+			sound.playSound(0);
+		} else {
+			sound.playSound(1);
 		}
 	}
 	if (data->isGrabWall && data->playerDir != Direction::Down) {
@@ -297,6 +326,9 @@ void MainController::moveRight() {
 		if (!(data->walls[(data->playerPosY * 2)][data->playerPosX])) {
 			data->playerPosX += 1;
 			data->elapsedSteps += 1;
+			sound.playSound(0);
+		} else {
+			sound.playSound(1);
 		}
 	}
 	if (data->isGrabWall && data->playerDir != Direction::Right) {
@@ -311,6 +343,9 @@ void MainController::moveUp() {
 		if (!(data->walls[(data->playerPosY * 2 - 1)][data->playerPosX])) {
 			data->playerPosY -= 1;
 			data->elapsedSteps += 1;
+			sound.playSound(0);
+		} else {
+			sound.playSound(1);
 		}
 	}
 	if (data->isGrabWall && data->playerDir != Direction::Up) {
@@ -348,6 +383,7 @@ void MainController::grabWall() {
 		}
 
 		data->isGrabWall = true;
+		sound.playSound(3);
 		updateDisplay();
 	}
 }
@@ -383,6 +419,7 @@ void MainController::releaseWall() {
 			break;
 		}
 
+		sound.playSound(3);
 		updateDisplay();
 	}
 }

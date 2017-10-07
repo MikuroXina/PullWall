@@ -1,10 +1,13 @@
 #include <string>
 
+#include "SoundManager.hpp"
+
 struct Data;
 
 class MainController {
 private:
 	Data *data;
+	SoundManager sound{};
 
 	void checkSDLError();
 public:
