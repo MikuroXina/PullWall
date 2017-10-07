@@ -14,6 +14,7 @@ enum struct Direction {
 struct Data {
 public:
 	bool quit = false;
+	bool clear = false;
 	int playerPosX = 9;
 	int playerPosY = 4;
 	bool walls[10][10]{};

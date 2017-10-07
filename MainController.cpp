@@ -67,18 +67,6 @@ MainController::MainController() {
 
 	data->wallTex = IMG_Load("WallH.png");
 	data->playerTex = IMG_Load("Player.png");
-
-	// Init randomize
-	std::random_device rd;
-	std::mt19937 mt(rd());
-	std::uniform_int_distribution<int> dice(0, 1);
-	for (auto &column : data->walls) {
-		for (auto &line : column) {
-			line = (dice(mt) == 0 ? true : false);
-			std::cout << line << ", ";
-		}
-		std::cout << std::endl;
-	}
 }
 
 MainController::~MainController() {
@@ -98,6 +86,27 @@ MainController::~MainController() {
 	delete data;
 }
 
+void MainController::init() {
+	data->quit = false;
+	data->clear = false;
+	data->playerPosX = 9;
+	data->playerPosY = 4;
+	data->isGrabWall = false;
+	data->isSneaking = false;
+	data->playerDir = Direction::Up;
+	data->elapsedSteps = 0;
+	data->wallMovedTimes = 0;
+	// Init randomize
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_int_distribution<int> dice(0, 1);
+	for (auto &column : data->walls) {
+		for (auto &line : column) {
+			line = (dice(mt) == 0 ? true : false);
+		}
+	}
+}
+
 int MainController::run() {
 	Inputter inputter{};
 	inputter.controller = this;
@@ -106,7 +115,7 @@ int MainController::run() {
 		inputter.update();
 	}
 
-	return 0;
+	return data->clear ? 0 : 1;
 }
 
 void MainController::quit() {
@@ -116,8 +125,28 @@ void MainController::quit() {
 
 void MainController::clear() {
 	// Render sprite
+	SDL_Color yellow = {0xff, 0xff, 0x00};
+	char const *text = "CLEAR!";
+	SDL_Surface *spriteImage = TTF_RenderText_Solid(data->font, text, yellow);
+	SDL_Texture *spriteTex = SDL_CreateTextureFromSurface(data->renderer, spriteImage);
+
+	SDL_Rect spriteViewRect;
+	spriteViewRect.x = 500;
+	spriteViewRect.y = 250;
+	spriteViewRect.w = 5000;
+	spriteViewRect.h = 5000;
+
+	TTF_SizeText(data->font, text, &(spriteViewRect.w), &(spriteViewRect.h));
+
+	SDL_RenderCopy(data->renderer, spriteTex, NULL, &spriteViewRect);
+
+	SDL_DestroyTexture(spriteTex);
+	SDL_FreeSurface(spriteImage);
+
+	SDL_GL_SwapWindow(data->window);
 
 	SDL_Delay(3000);
+	data->clear = true;
 	quit();
 }
 
@@ -205,6 +234,10 @@ void MainController::updateDisplay() {
 		}
 
 		SDL_DestroyTexture(playerTexBuf);
+
+		if (data->playerPosX == 0 && data->playerPosY == 0) {
+			clear();
+		}
 	}
 
 	// Draw socre
@@ -299,6 +332,21 @@ void MainController::moveUnlock() {
 
 void MainController::grabWall() {
 	if (!(data->isGrabWall)) {
+		switch (data->playerDir) {
+		case Direction::Left:
+			data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)] = false;
+			break;
+		case Direction::Down:
+			data->walls[(data->playerPosY * 2 + 1)][data->playerPosX] = false;
+			break;
+		case Direction::Right:
+			data->walls[(data->playerPosY * 2)][data->playerPosX] = false;
+			break;
+		case Direction::Up:
+			data->walls[(data->playerPosY * 2 - 1)][data->playerPosX] = false;
+			break;
+		}
+
 		data->isGrabWall = true;
 		updateDisplay();
 	}
@@ -306,7 +354,35 @@ void MainController::grabWall() {
 
 void MainController::releaseWall() {
 	if (data->isGrabWall) {
-		data->isGrabWall = false;
+		switch (data->playerDir) {
+		case Direction::Left:
+			if (!(data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)])) {
+				data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)] = true;
+				data->isGrabWall = false;
+			}
+			break;
+		case Direction::Down:
+			if (!(data->walls[(data->playerPosY * 2 + 1)][data->playerPosX])) {
+				data->walls[(data->playerPosY * 2 + 1)][data->playerPosX] = true;
+				data->isGrabWall = false;
+			}
+			break;
+		case Direction::Right:
+			if (!(data->walls[(data->playerPosY * 2)][data->playerPosX])) {
+				data->walls[(data->playerPosY * 2)][data->playerPosX] = true;
+				data->isGrabWall = false;
+			}
+			data->walls[(data->playerPosY * 2)][data->playerPosX] = true;
+			break;
+		case Direction::Up:
+			if (!(data->walls[(data->playerPosY * 2 - 1)][data->playerPosX])) {
+				data->walls[(data->playerPosY * 2 - 1)][data->playerPosX] = true;
+				data->isGrabWall = false;
+			}
+			data->walls[(data->playerPosY * 2 - 1)][data->playerPosX] = true;
+			break;
+		}
+
 		updateDisplay();
 	}
 }

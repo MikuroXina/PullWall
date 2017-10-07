@@ -8,7 +8,6 @@ void Inputter::update() {
 		if (event.type == SDL_KEYDOWN) {
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE:
-				std::cout<<"Pressed ESC key!"<<std::endl;
 				controller->quit();
 				break;
 			case SDLK_v:

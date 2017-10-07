@@ -11,6 +11,8 @@ public:
 	MainController();
 	~MainController();
 
+	void init();
+
 	int run();
 
 	// Move events

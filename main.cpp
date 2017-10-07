@@ -2,5 +2,9 @@
 
 int main() {
 	MainController mc{};
-	return mc.run();
+	mc.init();
+	while (mc.run() == 0) {
+		mc.init();
+	}
+	return 0;
 }
