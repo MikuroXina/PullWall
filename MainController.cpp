@@ -132,13 +132,17 @@ void MainController::quit() {
 }
 
 void MainController::clear() {
+	int score = data->elapsedSteps * 10 - data->wallMovedTimes * 30;
+
 	// Render sprite
 	SDL_Color yellow = {0xff, 0xff, 0x00};
+	SDL_Color red = {0xff, 0x00, 0x00};
+	SDL_Color green = {0x00, 0xff, 0x00};
 	char const *text1 = "CLEAR!";
-	char const *text2 = ("SCORE : " + std::to_string(data->elapsedSteps * 30 - data->wallMovedTimes * 50)).c_str();
+	char const *text2 = ("SCORE : " + std::to_string(score)).c_str();
 	SDL_Surface *spriteImage1 = TTF_RenderText_Solid(data->font, text1, yellow);
 	SDL_Texture *spriteTex1 = SDL_CreateTextureFromSurface(data->renderer, spriteImage1);
-	SDL_Surface *spriteImage2 = TTF_RenderText_Solid(data->font, text2, yellow);
+	SDL_Surface *spriteImage2 = TTF_RenderText_Solid(data->font, text2, (score < 0 ? red : green));
 	SDL_Texture *spriteTex2 = SDL_CreateTextureFromSurface(data->renderer, spriteImage2);
 
 	SDL_Rect spriteViewRect1;
@@ -292,6 +296,9 @@ void MainController::moveLeft() {
 		if (!(data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)])) {
 			data->playerPosX -= 1;
 			data->elapsedSteps += 1;
+			if (data->playerDir == Direction::Left) {
+				data->wallMovedTimes += 1;
+			}
 			sound.playSound(0);
 		} else {
 			sound.playSound(1);
@@ -309,6 +316,9 @@ void MainController::moveDown() {
 		if (!(data->walls[(data->playerPosY * 2 + 1)][data->playerPosX])) {
 			data->playerPosY += 1;
 			data->elapsedSteps += 1;
+			if (data->playerDir == Direction::Down) {
+				data->wallMovedTimes += 1;
+			}
 			sound.playSound(0);
 		} else {
 			sound.playSound(1);
@@ -326,6 +336,9 @@ void MainController::moveRight() {
 		if (!(data->walls[(data->playerPosY * 2)][data->playerPosX])) {
 			data->playerPosX += 1;
 			data->elapsedSteps += 1;
+			if (data->playerDir == Direction::Right) {
+				data->wallMovedTimes += 1;
+			}
 			sound.playSound(0);
 		} else {
 			sound.playSound(1);
@@ -343,6 +356,9 @@ void MainController::moveUp() {
 		if (!(data->walls[(data->playerPosY * 2 - 1)][data->playerPosX])) {
 			data->playerPosY -= 1;
 			data->elapsedSteps += 1;
+			if (data->playerDir == Direction::Up) {
+				data->wallMovedTimes += 1;
+			}
 			sound.playSound(0);
 		} else {
 			sound.playSound(1);
