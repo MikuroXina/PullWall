@@ -35,4 +35,6 @@ public:
 	void quit();
 	void clear();
 	void updateDisplay();
+
+	Data const* getData() const { return data; }
 };

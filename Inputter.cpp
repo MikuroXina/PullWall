@@ -1,10 +1,12 @@
 #include <iostream>
 
 #include "Inputter.hpp"
+#include "Data.hpp"
 #include "MainController.hpp"
 
 void Inputter::update() {
 	while (SDL_PollEvent(&event) != 0) {
+		if (controller->getData()->quit) return;
 		if (event.type == SDL_KEYDOWN) {
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE:
