@@ -104,6 +104,12 @@ void MainController::init() {
 	data->playerDir = Direction::Up;
 	data->elapsedSteps = 0;
 	data->wallMovedTimes = 0;
+
+	// Delete events
+	SDL_PumpEvents();
+	SDL_FlushEvent(SDL_KEYDOWN);
+	SDL_FlushEvent(SDL_KEYUP);
+
 	// Init randomize
 	std::random_device rd;
 	std::mt19937 mt(rd());
@@ -210,6 +216,22 @@ void MainController::updateDisplay() {
 			}
 		}
 		SDL_DestroyTexture(wallTexBuf);
+	}
+
+	// Draw goal
+	{
+		SDL_SetRenderDrawColor(data->renderer, 66, 244, 92, 255);
+		SDL_Point points[] = {
+			{15, 15},
+			{75, 15},
+			{75, 75},
+			{15, 75},
+			{15, 15},
+			{75, 75},
+			{15, 75},
+			{75, 15}
+		};
+		SDL_RenderDrawLines(data->renderer, points, 8);
 	}
 
 	// Draw player
@@ -385,17 +407,19 @@ void MainController::grabWall() {
 	if (!(data->isGrabWall)) {
 		switch (data->playerDir) {
 		case Direction::Left:
+			if (data->playerPosX <= 0) return;
 			data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)] = false;
 			break;
 		case Direction::Down:
-		if (data->playerPosY >= 4) break;
+			if (data->playerPosY >= 4) return;
 			data->walls[(data->playerPosY * 2 + 1)][data->playerPosX] = false;
 			break;
 		case Direction::Right:
-			if (data->playerPosX >= 9) break;
+			if (data->playerPosX >= 9) return;
 			data->walls[(data->playerPosY * 2)][data->playerPosX] = false;
 			break;
 		case Direction::Up:
+			if (data->playerPosY <= 0) return;
 			data->walls[(data->playerPosY * 2 - 1)][data->playerPosX] = false;
 			break;
 		}
@@ -410,18 +434,21 @@ void MainController::releaseWall() {
 	if (data->isGrabWall) {
 		switch (data->playerDir) {
 		case Direction::Left:
+			if (data->playerPosX <= 0) return;
 			if (!(data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)])) {
 				data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)] = true;
 				data->isGrabWall = false;
 			}
 			break;
 		case Direction::Down:
+			if (data->playerPosY >= 4) return;
 			if (!(data->walls[(data->playerPosY * 2 + 1)][data->playerPosX])) {
 				data->walls[(data->playerPosY * 2 + 1)][data->playerPosX] = true;
 				data->isGrabWall = false;
 			}
 			break;
 		case Direction::Right:
+			if (data->playerPosX >= 9) return;
 			if (!(data->walls[(data->playerPosY * 2)][data->playerPosX])) {
 				data->walls[(data->playerPosY * 2)][data->playerPosX] = true;
 				data->isGrabWall = false;
@@ -429,6 +456,7 @@ void MainController::releaseWall() {
 			data->walls[(data->playerPosY * 2)][data->playerPosX] = true;
 			break;
 		case Direction::Up:
+			if (data->playerPosY <= 0) return;
 			if (!(data->walls[(data->playerPosY * 2 - 1)][data->playerPosX])) {
 				data->walls[(data->playerPosY * 2 - 1)][data->playerPosX] = true;
 				data->isGrabWall = false;

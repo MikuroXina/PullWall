@@ -43,5 +43,6 @@ void Inputter::update() {
 				break;
 			}
 		}
+		SDL_Delay(1);
 	}
 }
