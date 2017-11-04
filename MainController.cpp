@@ -138,7 +138,7 @@ void MainController::quit() {
 }
 
 void MainController::clear() {
-	int score = data->elapsedSteps * 20 - data->wallMovedTimes * 16;
+	int score = 550 - data->elapsedSteps * 20 - data->wallMovedTimes * 15;
 
 	// Render sprite
 	SDL_Color yellow = {0xff, 0xff, 0x00};
@@ -318,7 +318,7 @@ void MainController::moveLeft() {
 		if (!(data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)])) {
 			data->playerPosX -= 1;
 			data->elapsedSteps += 1;
-			if (data->playerDir == Direction::Left) {
+			if (data->isGrabWall && data->playerDir == Direction::Left) {
 				data->wallMovedTimes += 1;
 			}
 			sound.playSound(0);
@@ -326,7 +326,7 @@ void MainController::moveLeft() {
 			sound.playSound(1);
 		}
 	}
-	if (!data->isGrabWall && data->playerDir != Direction::Left) {
+	if (data->isGrabWall && data->playerDir != Direction::Left) {
 		data->wallMovedTimes += 1;
 	}
 	data->playerDir = Direction::Left;
@@ -338,7 +338,7 @@ void MainController::moveDown() {
 		if (!(data->walls[(data->playerPosY * 2 + 1)][data->playerPosX])) {
 			data->playerPosY += 1;
 			data->elapsedSteps += 1;
-			if (data->playerDir == Direction::Down) {
+			if (data->isGrabWall && data->playerDir == Direction::Down) {
 				data->wallMovedTimes += 1;
 			}
 			sound.playSound(0);
@@ -346,7 +346,7 @@ void MainController::moveDown() {
 			sound.playSound(1);
 		}
 	}
-	if (!data->isGrabWall && data->playerDir != Direction::Down) {
+	if (data->isGrabWall && data->playerDir != Direction::Down) {
 		data->wallMovedTimes += 1;
 	}
 	data->playerDir = Direction::Down;
@@ -358,7 +358,7 @@ void MainController::moveRight() {
 		if (!(data->walls[(data->playerPosY * 2)][data->playerPosX])) {
 			data->playerPosX += 1;
 			data->elapsedSteps += 1;
-			if (data->playerDir == Direction::Right) {
+			if (data->isGrabWall && data->playerDir == Direction::Right) {
 				data->wallMovedTimes += 1;
 			}
 			sound.playSound(0);
@@ -366,7 +366,7 @@ void MainController::moveRight() {
 			sound.playSound(1);
 		}
 	}
-	if (!data->isGrabWall && data->playerDir != Direction::Right) {
+	if (data->isGrabWall && data->playerDir != Direction::Right) {
 		data->wallMovedTimes += 1;
 	}
 	data->playerDir = Direction::Right;
@@ -378,7 +378,7 @@ void MainController::moveUp() {
 		if (!(data->walls[(data->playerPosY * 2 - 1)][data->playerPosX])) {
 			data->playerPosY -= 1;
 			data->elapsedSteps += 1;
-			if (data->playerDir == Direction::Up) {
+			if (data->isGrabWall && data->playerDir == Direction::Up) {
 				data->wallMovedTimes += 1;
 			}
 			sound.playSound(0);
@@ -386,7 +386,7 @@ void MainController::moveUp() {
 			sound.playSound(1);
 		}
 	}
-	if (!data->isGrabWall && data->playerDir != Direction::Up) {
+	if (data->isGrabWall && data->playerDir != Direction::Up) {
 		data->wallMovedTimes += 1;
 	}
 	data->playerDir = Direction::Up;
