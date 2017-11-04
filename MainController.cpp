@@ -388,9 +388,11 @@ void MainController::grabWall() {
 			data->walls[(data->playerPosY * 2)][(data->playerPosX - 1)] = false;
 			break;
 		case Direction::Down:
+		if (data->playerPosY >= 4) break;
 			data->walls[(data->playerPosY * 2 + 1)][data->playerPosX] = false;
 			break;
 		case Direction::Right:
+			if (data->playerPosX >= 9) break;
 			data->walls[(data->playerPosY * 2)][data->playerPosX] = false;
 			break;
 		case Direction::Up:
