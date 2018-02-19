@@ -1,8 +1,8 @@
 #include <OpenGL/gl.h>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 
 enum struct Direction {
 	Up=0,
